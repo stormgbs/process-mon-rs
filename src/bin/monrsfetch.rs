@@ -5,6 +5,37 @@ use std::time::Duration;
 
 use redis::Commands;
 
+enum Unit {
+    K(f64),
+    M(f64),
+    G(f64),
+    B(u32),
+}
+
+impl Unit {
+    fn new(i: u64) -> Unit {
+        if i / 1000000000 > 0 {
+            Unit::G(i as f64 / 1000000000.0)
+        } else if i / 1000000 > 0 {
+            Unit::M(i as f64 / 1000000.0)
+        } else if i / 1000 > 0 {
+            Unit::K(i as f64 / 1000.0)
+        } else {
+            Unit::B(i as u32)
+        }
+    }
+
+    fn fmt(&self) -> String {
+        match *self {
+            Unit::K(i) => format!("{}K", i),
+            Unit::M(i) => format!("{}M", i),
+            Unit::G(i) => format!("{}G", i),
+            Unit::B(i) => format!("{}", i),
+        }
+    }
+}
+
+
 fn main() {
     let mut keys: Vec<String> = vec![
         String::from("10.108.67.34"),
@@ -117,14 +148,14 @@ fn main() {
         
         let rdsconn = redis::Client::open("redis://10.237.2.170:5001/").unwrap().get_connection().unwrap();
 
-        let mut sum:u32 = 0;
+        let mut sum:u64 = 0;
         for (i, k) in keys.iter().enumerate() {
             let mut k = k.clone();
             k.push_str(":qps");
 
             let v: Result<u32, redis::RedisError> = rdsconn.get(k);
             match v {
-                Ok(v) => { sum+=v; print!("{} ", v);},
+                Ok(v) => { sum+=v as u64; print!("{} ", v);},
                 Err(e) => (),
             }
 
@@ -132,7 +163,7 @@ fn main() {
                 print!("| ");
             }
         }
-        print!("{}\n", sum);
+        print!("{}\n", Unit::new(sum).fmt());
         count+=1;
 
         thread::sleep(Duration::from_secs(2));
