@@ -59,7 +59,7 @@ fn main() {
 
     println!("{}", seri);
 
-    /// ////////////////// LogFile ////////////////
+    ///////////////////// LogFile ////////////////
     let mut ipaddr: IpAddr = IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1));
     {
         let tcpstream = TcpStream::connect("10.237.2.170:5001").unwrap();
@@ -71,24 +71,24 @@ fn main() {
 
     // let mut lf = logfile::LogFile::new(String::from("test.log")).unwrap();
     let mut lf = logfile::LogFile::new(format!("{}", ipaddr),
-                                       String::from("/home/work/logs/mae/mirouter.log"),
-                                       conn)
-                     .unwrap();
+    String::from("/home/work/logs/mae/mirouter.log"),
+    conn)
+        .unwrap();
     // let (rx, stop) = lf.start().unwrap();
 
     lf.loop_update_qps();
 
     // loop {
-    // 	match lf.receiver.recv() {
-    // 		Ok(i) => {
-    // 			println!("{}: QPS {}", lf.name, i);
-    // 			// lf.stop();
-    // 		},
-    // 		Err(e) => {
-    // 			println!("Got error: {:?}", e);
-    // 			break;
-    // 		},
-    // 	}
+    //  match lf.receiver.recv() {
+    //      Ok(i) => {
+    //          println!("{}: QPS {}", lf.name, i);
+    //          // lf.stop();
+    //      },
+    //      Err(e) => {
+    //          println!("Got error: {:?}", e);
+    //          break;
+    //      },
+    //  }
     // }
 
     // never reach here.

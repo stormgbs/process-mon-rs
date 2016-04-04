@@ -88,6 +88,15 @@ impl LogFile {
     }
 }
 
+fn open_seek_end(name: &String) -> Result<File, String> {
+    File::open(&name)
+        .map_err( |e| e.to_string() )
+        .and_then( |mut f| {
+            f.seek(SeekFrom::End(0))
+                .map_err( |e| e.to_string() )
+                .and_then( |_| Ok(f))
+        })
+}
 
 fn watch_log_qps(name: &String) -> Result<(Receiver<u32>, Sender<bool>), String> {
     let (notify_tx, notify_rx) = mpsc::channel::<bool>();
@@ -101,19 +110,15 @@ fn watch_log_qps(name: &String) -> Result<(Receiver<u32>, Sender<bool>), String>
         let mut buf: Vec<u8> = vec![0; 10*1024*1024];
 
         'outer: loop {
-
-            let mut fp = match File::open(&name) {
-                Ok(fp) => fp,
+            let mut fp = match open_seek_end(&name) {
+                Ok(f) => f,
                 Err(e) => {
-                    println!("{} open error: {}", &name, e.to_string());
+                    println!("Open and seek file error: {:?}", e);
                     return ();
                 }
             };
 
-            fp.seek(SeekFrom::End(0)).unwrap();
-
             let mut zero_cnt = 0i32;
-
             'inner: loop {
                 match notify_rx.try_recv() {
                     Ok(t) => {
