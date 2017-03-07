@@ -8,6 +8,7 @@ use std::io::SeekFrom;
 use std::time::Duration;
 use std::collections::HashMap;
 use std::cell::RefCell;
+
 use redis::Commands;
 use redis::{Client, Connection};
 use redis::RedisError;
@@ -60,6 +61,10 @@ impl LogFile {
 
     pub fn loop_update_qps(&self) {
         loop {
+            // self.receiver
+            //    .lock()
+            //    .map_err(|e| Err("".to_owned()));
+
             match self.receiver.lock().unwrap().recv() {
                 Ok(i) => {
                     {
@@ -90,11 +95,11 @@ impl LogFile {
 
 fn open_seek_end(name: &String) -> Result<File, String> {
     File::open(&name)
-        .map_err( |e| e.to_string() )
-        .and_then( |mut f| {
+        .map_err(|e| e.to_string())
+        .and_then(|mut f| {
             f.seek(SeekFrom::End(0))
-                .map_err( |e| e.to_string() )
-                .and_then( |_| Ok(f))
+                .map_err(|e| e.to_string())
+                .and_then(|_| Ok(f))
         })
 }
 
@@ -168,11 +173,7 @@ fn watch_log_qps(name: &String) -> Result<(Receiver<u32>, Sender<bool>), String>
 
 
 
-                let qps = if qps > 0 && qps / 2 == 0 {
-                    1
-                } else {
-                    qps / 2
-                };
+                let qps = if qps > 0 && qps / 2 == 0 { 1 } else { qps / 2 };
 
 
 

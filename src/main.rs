@@ -1,20 +1,20 @@
 #![feature(custom_derive, plugin)]
-#![plugin(serde_macros)]
 
 extern crate iron;
 extern crate ssh2;
 extern crate regex;
-extern crate serde;
-extern crate serde_json;
 extern crate time;
 extern crate redis;
-// extern crate memchr;
+
+extern crate serde;
+extern crate serde_json;
+
+#[macro_use]
+extern crate serde_derive;
 
 use std::net::{TcpStream, TcpListener, IpAddr, Ipv4Addr};
 use std::io::Read;
 use std::path::Path;
-
-
 use ssh2::Session;
 
 mod process;
@@ -71,8 +71,8 @@ fn main() {
 
     // let mut lf = logfile::LogFile::new(String::from("test.log")).unwrap();
     let mut lf = logfile::LogFile::new(format!("{}", ipaddr),
-    String::from("/home/work/logs/mae/mirouter.log"),
-    conn)
+                                       String::from("/home/work/logs/mae/mirouter.log"),
+                                       conn)
         .unwrap();
     // let (rx, stop) = lf.start().unwrap();
 

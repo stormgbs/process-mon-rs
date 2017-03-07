@@ -40,9 +40,7 @@ impl<'a> TcpServer<'a> {
             match stream {
                 Ok(mut s) => {
                     // s.write(b"hello, world!");
-                    thread::spawn(move || {
-                        handle_client(&mut s);
-                    });
+                    thread::spawn(move || { handle_client(&mut s); });
                 }
                 Err(e) => println!("{:?}", e),
             }

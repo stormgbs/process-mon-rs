@@ -1,4 +1,3 @@
-
 use std::io::{self, BufRead, BufReader};
 use std::fs::{self, File, DirEntry, Metadata};
 use std::path::{Path, PathBuf};
@@ -70,7 +69,7 @@ fn visit_dirs(dir: &Path) -> Result<Vec<Pid>, String> {
 
 pub type Pid = u32;
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Status {
     // uninterruptible sleep (usually IO)
     D,
@@ -124,13 +123,13 @@ impl Status {
     }
 }
 
-impl serde::Serialize for Status {
-    fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
-        where S: serde::Serializer
-    {
-        serializer.serialize_str(self.to_str())
-    }
-}
+//impl serde::Serialize for Status {
+//    fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
+//        where S: serde::Serializer
+//    {
+//        serializer.serialize_str(self.to_str())
+//    }
+//}
 
 // pub type ProcessErrorResult = Result<Process, ProcessError>;
 pub type ProcessErrorResult = Result<Process, ProcessError>;
@@ -182,7 +181,7 @@ fn parse_proc_process(pid: Pid) -> ProcessErrorResult {
     let mut pf = PathBuf::from(format!("/proc/{}", pid));
 
     let md = pf.metadata()
-               .map_err(|x| -> ProcessError { ProcessError::ProcessErrorOther(x.to_string()) });
+        .map_err(|x| -> ProcessError { ProcessError::ProcessErrorOther(x.to_string()) });
     match md {
         Ok(i) => {
             if !i.is_dir() {
